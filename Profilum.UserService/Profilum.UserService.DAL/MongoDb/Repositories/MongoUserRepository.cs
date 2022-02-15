@@ -1,23 +1,23 @@
-﻿using Profilum.UserService.BLL.Handlers.Interfaces;
-using Profilum.UserService.BLL.Models;
-using Profilum.UserService.DAL.MongoDb.Repositories;
+﻿using Profilum.UserService.DAL.Models;
+using Profilum.UserService.DAL.MongoDb.Models;
 
-namespace Profilum.UserService.BLL.Handlers.Implementations;
+namespace Profilum.UserService.DAL.MongoDb.Repositories;
 
-public class UserHandler : IUserHandler
+public class MongoUserRepository
 {
-    private readonly MongoUserRepository _mongoUserRepository;
-    
-    public UserHandler(string connectionString, string dbName)
+    private IRepository<Users> _repository;
+        
+    public MongoUserRepository(string connectionString, string databaseName)
     {
-        _mongoUserRepository = new MongoUserRepository(connectionString, dbName);
+        _repository = new MongoRepository<Users>(connectionString, databaseName);
     }
+    
     
     public async Task<List<UserResponse>> GetAll()
     {
         try
         {
-            var getAllUsers = await _mongoUserRepository.GetAll();
+            var getAllUsers = await _repository.All();
 
             return getAllUsers.Select(u => new UserResponse(u)).ToList();
         }
@@ -32,8 +32,8 @@ public class UserHandler : IUserHandler
     {
         try
         {
-            var getUser = await _mongoUserRepository.Get(id);
-
+            var getUser = await _repository.Single(id);
+            
             return new UserResponse(getUser);
         }
         catch (Exception e)
@@ -47,9 +47,9 @@ public class UserHandler : IUserHandler
     {
         try
         {
-            var createUser = await _mongoUserRepository.Create(request.ConvertToDal());
-
-            return new UserResponse(createUser);
+            await _repository.Save(request.ConvertToEntity());
+            
+            return new UserResponse(request);
 
         }
         catch (Exception e)
@@ -63,10 +63,11 @@ public class UserHandler : IUserHandler
     {
         try
         {
-            var updateUser = await _mongoUserRepository.Update(request.ConvertToDal());
-
-            return new UserResponse(updateUser);
-
+            var update = await _repository.Update(request.Id, request.ConvertToEntity());
+            if (!update)
+                throw new Exception();
+            
+            return new UserResponse(request);
         }
         catch (Exception e)
         {
@@ -79,7 +80,7 @@ public class UserHandler : IUserHandler
     {
         try
         {
-            await _mongoUserRepository.Delete(id);
+             await _repository.Delete(id);
         }
         catch (Exception e)
         {
@@ -92,7 +93,7 @@ public class UserHandler : IUserHandler
     {
         try
         {
-            await _mongoUserRepository.DeleteAll();
+            await _repository.DeleteAll();
         }
         catch (Exception e)
         {

@@ -10,6 +10,10 @@ public interface IRepository<TEntity> where TEntity : class
     Task<bool> Exists(object key);
     
     Task Save(TEntity item);
+
+    Task<bool> Update(object key, TEntity item);
     
     Task Delete(object key);
+
+    Task DeleteAll();
 }

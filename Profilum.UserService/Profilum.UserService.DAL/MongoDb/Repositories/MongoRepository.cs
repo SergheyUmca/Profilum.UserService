@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace Profilum.UserService.DAL.MongoDb
+namespace Profilum.UserService.DAL.MongoDb.Repositories
 {
     public class MongoRepository<TEntity> : IRepository<TEntity> where TEntity : class
     {
@@ -17,7 +17,7 @@ namespace Profilum.UserService.DAL.MongoDb
 
         public async Task<TEntity> Single(object key)
         {
-            var query = new BsonDocument("_id", BsonValue.Create(key));
+            var query = new BsonDocument("Id", BsonValue.Create(key));
             var entity = await _dbCollection.FindSync<TEntity>(query).FirstOrDefaultAsync();
 
             if (entity == null)
@@ -34,20 +34,35 @@ namespace Profilum.UserService.DAL.MongoDb
 
         public async Task<bool> Exists(object key)
         {
-            var query = new BsonDocument("_id", BsonValue.Create(key));
+            var query = new BsonDocument("Id", BsonValue.Create(key));
             var entity = await _dbCollection.FindSync<TEntity>(query).FirstOrDefaultAsync();
             return (entity != null);
         }
+        
 
         public async Task Save(TEntity item)
         {
             await _dbCollection.InsertOneAsync(item);
         }
+        
+        public async Task<bool> Update(object key, TEntity item)
+        {
+            var query = new BsonDocument("Id", BsonValue.Create(key));
+            var updateResult = await _dbCollection.ReplaceOneAsync(query, item);
+
+            return updateResult.ModifiedCount > 0;
+        }
 
         public async Task Delete(object key) 
         {
-            var query = new BsonDocument("_id", BsonValue.Create(key));
+            var query = new BsonDocument("Id", BsonValue.Create(key));
             await _dbCollection.DeleteOneAsync(query);
+        }
+        
+        public async Task DeleteAll() 
+        {
+            var query = new BsonDocument();
+            await _dbCollection.DeleteManyAsync(query);
         }
     }
 }

@@ -18,36 +18,40 @@ public class UsersController : ControllerBase
     [HttpGet]
     public async Task<UserResponse> Get([FromServices]IUserHandler userHandler , long id)
     {
-        return new UserResponse();
+        var getUser = await userHandler.Get(id);
+        return new UserResponse(getUser);
     }
     
-    [HttpGet]
-    public async Task<UserResponse> GetAll([FromServices]IUserHandler userHandler)
+    [HttpGet("GetAll")]
+    public async Task<List<UserResponse>> GetAll([FromServices]IUserHandler userHandler)
     {
-        return new UserResponse();
+        var getUsers = await userHandler.GetAll();
+        return getUsers.Select(u => new UserResponse(u)).ToList();
     }
     
     [HttpPost]
     public async Task<UserResponse> Create([FromServices]IUserHandler userHandler, [FromBody]UserRequest request)
     {
-        return new UserResponse();
+        var createUser = await userHandler.Create(request.ConvertToBll());
+        return new UserResponse(createUser);
     }
     
     [HttpPut]
     public async Task<UserResponse> Update([FromServices]IUserHandler userHandler, [FromBody]UserRequest request)
     {
-        return new UserResponse();
+        var updateUser = await userHandler.Update(request.ConvertToBll());
+        return new UserResponse(updateUser);
     }
     
     [HttpDelete]
     public async Task Delete([FromServices]IUserHandler userHandler, long id)
     {
-        return;
+        await userHandler.Delete(id);
     }
     
-    [HttpDelete]
-    public async Task Delete([FromServices]IUserHandler userHandler)
+    [HttpDelete("DeleteAll")]
+    public async Task DeleteAll([FromServices]IUserHandler userHandler)
     {
-        return;
+        await userHandler.DeleteAll();
     }
 }
