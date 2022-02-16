@@ -15,13 +15,13 @@ namespace Profilum.UserService.DAL.MongoDb.Repositories
         }
         
 
-        public async Task<TEntity> Single(object key)
+        public async Task<TEntity> Single(object value, string fieldName)
         {
-            var query = new BsonDocument("Id", BsonValue.Create(key));
+            var query = new BsonDocument(fieldName, BsonValue.Create(value));
             var entity = await _dbCollection.FindSync<TEntity>(query).FirstOrDefaultAsync();
 
             if (entity == null)
-                throw new NullReferenceException("Document with key '" + key + "' not found.");
+                throw new NullReferenceException($"Document with {fieldName}  {value} not found");
 
             return entity;
         }
@@ -32,9 +32,9 @@ namespace Profilum.UserService.DAL.MongoDb.Repositories
             return entity;
         }
 
-        public async Task<bool> Exists(object key)
+        public async Task<bool> Exists(object value, string fieldName)
         {
-            var query = new BsonDocument("Id", BsonValue.Create(key));
+            var query = new BsonDocument(fieldName, BsonValue.Create(value));
             var entity = await _dbCollection.FindSync<TEntity>(query).FirstOrDefaultAsync();
             return (entity != null);
         }
@@ -45,17 +45,17 @@ namespace Profilum.UserService.DAL.MongoDb.Repositories
             await _dbCollection.InsertOneAsync(item);
         }
         
-        public async Task<bool> Update(object key, TEntity item)
+        public async Task<bool> Update(object value, string fieldName, TEntity item)
         {
-            var query = new BsonDocument("Id", BsonValue.Create(key));
+            var query = new BsonDocument(fieldName, BsonValue.Create(value));
             var updateResult = await _dbCollection.ReplaceOneAsync(query, item);
 
             return updateResult.ModifiedCount > 0;
         }
 
-        public async Task Delete(object key) 
+        public async Task Delete(object value, string fieldName) 
         {
-            var query = new BsonDocument("Id", BsonValue.Create(key));
+            var query = new BsonDocument(fieldName, BsonValue.Create(value));
             await _dbCollection.DeleteOneAsync(query);
         }
         

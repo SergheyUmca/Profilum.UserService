@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Profilum.UserService.BLL", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Profilum.UserService.DAL", "Profilum.UserService.DAL\Profilum.UserService.DAL.csproj", "{CFF93420-8589-4213-AC26-9F2F9EAA0FA2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Profilum.UserService.Common", "Profilum.UserService.Common\Profilum.UserService.Common.csproj", "{EEA434AB-B0C3-4F26-A1F5-0D3CABFE3921}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{CFF93420-8589-4213-AC26-9F2F9EAA0FA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFF93420-8589-4213-AC26-9F2F9EAA0FA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFF93420-8589-4213-AC26-9F2F9EAA0FA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEA434AB-B0C3-4F26-A1F5-0D3CABFE3921}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEA434AB-B0C3-4F26-A1F5-0D3CABFE3921}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEA434AB-B0C3-4F26-A1F5-0D3CABFE3921}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEA434AB-B0C3-4F26-A1F5-0D3CABFE3921}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,18 +1,19 @@
 ﻿using Profilum.UserService.BLL.Models;
+using static Profilum.UserService.Common.BaseModels.AppResponse;
 
 namespace Profilum.UserService.BLL.Handlers.Interfaces;
 
 public interface IUserHandler
 {
-    Task<UserResponse> Get(long id);
+    Task<Response<UserResponse>> Get(long id);
 
-    Task<List<UserResponse>> GetAll();
+    Task<Response<List<UserResponse>>> GetAll();
 
-    Task<UserResponse> Create(UserRequest request);
+    Task<Response<UserResponse>> Create(UserRequest request);
 
-    Task<UserResponse> Update(UserRequest request);
+    Task<Response<UserResponse>> Update(UserRequest request);
 
-    Task Delete(long id);
+    Task<Response> Delete(long id);
 
-    Task DeleteAll();
+    Task<Response> DeleteAll();
 }

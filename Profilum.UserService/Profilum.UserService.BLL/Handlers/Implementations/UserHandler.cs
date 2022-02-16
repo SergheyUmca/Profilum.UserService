@@ -1,6 +1,8 @@
 ﻿using Profilum.UserService.BLL.Handlers.Interfaces;
 using Profilum.UserService.BLL.Models;
+using Profilum.UserService.Common.BaseModels;
 using Profilum.UserService.DAL.MongoDb.Repositories;
+using static Profilum.UserService.Common.BaseModels.AppResponse;
 
 namespace Profilum.UserService.BLL.Handlers.Implementations;
 
@@ -13,91 +15,125 @@ public class UserHandler : IUserHandler
         _mongoUserRepository = new MongoUserRepository(connectionString, dbName);
     }
     
-    public async Task<List<UserResponse>> GetAll()
+    public async Task<Response<List<UserResponse>>> GetAll()
     {
         try
         {
             var getAllUsers = await _mongoUserRepository.GetAll();
+            if (!getAllUsers.IsSuccess)
+                throw new CustomException(getAllUsers.ResultCode, getAllUsers.LastResultMessage);
 
-            return getAllUsers.Select(u => new UserResponse(u)).ToList();
+            return new Response<List<UserResponse>>(getAllUsers.Data.Select(u => new UserResponse(u)).ToList());
+        }
+        catch (CustomException ce)
+        {
+            return new ErrorResponse<List<UserResponse>>(ce.LastErrorMessage, ce.LastResultCode);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return new ErrorResponse<List<UserResponse>>(e.Message);
         }
     }
     
-    public async Task<UserResponse> Get(long id)
+    public async Task<Response<UserResponse>> Get(long id)
     {
         try
         {
             var getUser = await _mongoUserRepository.Get(id);
+            if (!getUser.IsSuccess)
+                throw new CustomException(getUser.ResultCode, getUser.LastResultMessage);
 
-            return new UserResponse(getUser);
+            return new Response<UserResponse>(new UserResponse(getUser.Data));
+        }
+        catch (CustomException ce)
+        {
+            return new ErrorResponse<UserResponse>(ce.LastErrorMessage, ce.LastResultCode);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return new ErrorResponse<UserResponse>(e.Message);
         }
     }
     
-    public async Task<UserResponse> Create( UserRequest request)
+    public async Task<Response<UserResponse>> Create( UserRequest request)
     {
         try
         {
             var createUser = await _mongoUserRepository.Create(request.ConvertToDal());
+            if (!createUser.IsSuccess)
+                throw new CustomException(createUser.ResultCode, createUser.LastResultMessage);
 
-            return new UserResponse(createUser);
+            return new Response<UserResponse>(new UserResponse(createUser.Data));
 
+        }
+        catch (CustomException ce)
+        {
+            return new ErrorResponse<UserResponse>(ce.LastErrorMessage, ce.LastResultCode);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return new ErrorResponse<UserResponse>(e.Message);
         }
     }
     
-    public async Task<UserResponse> Update(UserRequest request)
+    public async Task<Response<UserResponse>> Update(UserRequest request)
     {
         try
         {
             var updateUser = await _mongoUserRepository.Update(request.ConvertToDal());
+            if (!updateUser.IsSuccess)
+                throw new CustomException(updateUser.ResultCode, updateUser.LastResultMessage);
 
-            return new UserResponse(updateUser);
+            return new Response<UserResponse>(new UserResponse(updateUser.Data));
 
+        }
+        catch (CustomException ce)
+        {
+            return new ErrorResponse<UserResponse>(ce.LastErrorMessage, ce.LastResultCode);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return new ErrorResponse<UserResponse>(e.Message);
         }
     }
     
-    public async Task Delete(long id)
+    public async Task<Response> Delete(long id)
     {
         try
         {
-            await _mongoUserRepository.Delete(id);
+            var delete = await _mongoUserRepository.Delete(id);
+            if (!delete.IsSuccess)
+                throw new CustomException(delete.ResultCode, delete.LastResultMessage);
+
+            return new Response();
+        }
+        catch (CustomException ce)
+        {
+            return new ErrorResponse(ce.LastErrorMessage, ce.LastResultCode);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return new ErrorResponse(e.Message);
         }
     }
     
-    public async Task DeleteAll()
+    public async Task<Response> DeleteAll()
     {
         try
         {
-            await _mongoUserRepository.DeleteAll();
+            var deleteAll = await _mongoUserRepository.DeleteAll();
+            if (!deleteAll.IsSuccess)
+                throw new CustomException(deleteAll.ResultCode, deleteAll.LastResultMessage);
+            
+            return new Response();
+        }
+        catch (CustomException ce)
+        {
+            return new ErrorResponse(ce.LastErrorMessage, ce.LastResultCode);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return new ErrorResponse(e.Message);
         }
     }
 }

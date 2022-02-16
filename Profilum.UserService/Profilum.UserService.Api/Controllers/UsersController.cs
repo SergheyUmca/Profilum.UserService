@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Profilum.UserService.Api.Models;
 using Profilum.UserService.BLL.Handlers.Interfaces;
+using static Profilum.UserService.Common.BaseModels.AppResponse;
 
 namespace Profilum.UserService.Api.Controllers;
 
@@ -8,50 +9,57 @@ namespace Profilum.UserService.Api.Controllers;
 [Route("[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly ILogger<UsersController> _logger;
-
-    public UsersController(ILogger<UsersController> logger)
-    {
-        _logger = logger;
-    }
-    
     [HttpGet]
-    public async Task<UserResponse> Get([FromServices]IUserHandler userHandler , long id)
+    public async Task<Response<UserResponse>> Get([FromServices]IUserHandler userHandler , long id)
     {
         var getUser = await userHandler.Get(id);
-        return new UserResponse(getUser);
+        return !getUser.IsSuccess
+            ? new ErrorResponse<UserResponse>(getUser.LastResultMessage, getUser.ResultCode)
+            : new Response<UserResponse>(new UserResponse(getUser.Data));
     }
     
     [HttpGet("GetAll")]
-    public async Task<List<UserResponse>> GetAll([FromServices]IUserHandler userHandler)
+    public async Task<Response<List<UserResponse>>> GetAll([FromServices]IUserHandler userHandler)
     {
         var getUsers = await userHandler.GetAll();
-        return getUsers.Select(u => new UserResponse(u)).ToList();
+        return !getUsers.IsSuccess
+            ? new ErrorResponse<List<UserResponse>>(getUsers.LastResultMessage, getUsers.ResultCode)
+            : new Response<List<UserResponse>>(getUsers.Data.Select(u => new UserResponse(u)).ToList());
     }
     
     [HttpPost]
-    public async Task<UserResponse> Create([FromServices]IUserHandler userHandler, [FromBody]UserRequest request)
+    public async Task<Response<UserResponse>> Create([FromServices]IUserHandler userHandler, [FromBody]UserRequest request)
     {
         var createUser = await userHandler.Create(request.ConvertToBll());
-        return new UserResponse(createUser);
+        return !createUser.IsSuccess
+            ? new ErrorResponse<UserResponse>(createUser.LastResultMessage, createUser.ResultCode)
+            : new Response<UserResponse>(new UserResponse(createUser.Data));
     }
     
     [HttpPut]
-    public async Task<UserResponse> Update([FromServices]IUserHandler userHandler, [FromBody]UserRequest request)
+    public async Task<Response<UserResponse>> Update([FromServices]IUserHandler userHandler, [FromBody]UserRequest request)
     {
         var updateUser = await userHandler.Update(request.ConvertToBll());
-        return new UserResponse(updateUser);
+        return !updateUser.IsSuccess
+            ? new ErrorResponse<UserResponse>(updateUser.LastResultMessage, updateUser.ResultCode)
+            : new Response<UserResponse>(new UserResponse(updateUser.Data));
     }
     
     [HttpDelete]
-    public async Task Delete([FromServices]IUserHandler userHandler, long id)
+    public async Task<Response> Delete([FromServices]IUserHandler userHandler, long id)
     {
-        await userHandler.Delete(id);
+        var deleteUser = await userHandler.Delete(id);
+        return !deleteUser.IsSuccess
+            ? new ErrorResponse(deleteUser.LastResultMessage, deleteUser.ResultCode)
+            : new Response();
     }
     
     [HttpDelete("DeleteAll")]
-    public async Task DeleteAll([FromServices]IUserHandler userHandler)
+    public async Task<Response> DeleteAll([FromServices]IUserHandler userHandler)
     {
-        await userHandler.DeleteAll();
+        var deleteAll = await userHandler.DeleteAll();
+        return !deleteAll.IsSuccess
+            ? new ErrorResponse(deleteAll.LastResultMessage, deleteAll.ResultCode)
+            : new Response();
     }
 }

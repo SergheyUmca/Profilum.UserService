@@ -1,11 +1,14 @@
-﻿using Profilum.UserService.DAL.Models;
+﻿using Profilum.UserService.Common;
+using Profilum.UserService.Common.BaseModels;
+using Profilum.UserService.DAL.Models;
 using Profilum.UserService.DAL.MongoDb.Models;
+using static Profilum.UserService.Common.BaseModels.AppResponse;
 
 namespace Profilum.UserService.DAL.MongoDb.Repositories;
 
 public class MongoUserRepository
 {
-    private IRepository<Users> _repository;
+    private readonly IRepository<Users> _repository;
         
     public MongoUserRepository(string connectionString, string databaseName)
     {
@@ -13,92 +16,115 @@ public class MongoUserRepository
     }
     
     
-    public async Task<List<UserResponse>> GetAll()
+    public async Task<Response<List<UserResponse>>> GetAll()
     {
         try
         {
             var getAllUsers = await _repository.All();
 
-            return getAllUsers.Select(u => new UserResponse(u)).ToList();
+            return new Response<List<UserResponse>>(getAllUsers.Select(u => new UserResponse(u)).ToList());
+        }
+        catch (CustomException ce)
+        {
+            return new ErrorResponse<List<UserResponse>>(ce.LastErrorMessage, ce.LastResultCode);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return new ErrorResponse<List<UserResponse>>(e.Message);
         }
     }
     
-    public async Task<UserResponse> Get(long id)
+    public async Task<Response<UserResponse>> Get(long id)
     {
         try
         {
-            var getUser = await _repository.Single(id);
+            var getUser = await _repository.Single(id, "Id");
             
-            return new UserResponse(getUser);
+            return new Response<UserResponse>(new UserResponse(getUser));
+
+        }
+        catch (CustomException ce)
+        {
+            return new ErrorResponse<UserResponse>(ce.LastErrorMessage, ce.LastResultCode);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return new ErrorResponse<UserResponse>(e.Message);
         }
     }
     
-    public async Task<UserResponse> Create( UserRequest request)
+    public async Task<Response<UserResponse>> Create( UserRequest request)
     {
         try
         {
             await _repository.Save(request.ConvertToEntity());
             
-            return new UserResponse(request);
+            return new Response<UserResponse>(new UserResponse(request));
 
         }
+        catch (CustomException ce)
+        {
+            return new ErrorResponse<UserResponse>(ce.LastErrorMessage, ce.LastResultCode);
+        }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return new ErrorResponse<UserResponse>(e.Message);
         }
     }
     
-    public async Task<UserResponse> Update(UserRequest request)
+    public async Task<Response<UserResponse>> Update(UserRequest request)
     {
         try
         {
-            var update = await _repository.Update(request.Id, request.ConvertToEntity());
+            var update = await _repository.Update(request.Id, nameof(request.Id), request.ConvertToEntity());
             if (!update)
-                throw new Exception();
+                throw new CustomException(ResponseCodes.DATABASE_ERROR, $"Entity not updated");
             
-            return new UserResponse(request);
+            return new Response<UserResponse>(new UserResponse(request));
+        }
+        catch (CustomException ce)
+        {
+            return new ErrorResponse<UserResponse>(ce.LastErrorMessage, ce.LastResultCode);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return new ErrorResponse<UserResponse>(e.Message);
         }
     }
     
-    public async Task Delete(long id)
+    public async Task<Response> Delete(long id)
     {
         try
         {
-             await _repository.Delete(id);
+            await _repository.Delete(id, "Id");
+
+            return new Response();
+        }
+        catch (CustomException ce)
+        {
+            return new ErrorResponse(ce.LastErrorMessage, ce.LastResultCode);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return new ErrorResponse(e.Message);
         }
     }
     
-    public async Task DeleteAll()
+    public async Task<Response> DeleteAll()
     {
         try
         {
             await _repository.DeleteAll();
+
+            return new Response();
+        }
+        catch (CustomException ce)
+        {
+            return new ErrorResponse(ce.LastErrorMessage, ce.LastResultCode);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return new ErrorResponse(e.Message);
         }
     }
 }
