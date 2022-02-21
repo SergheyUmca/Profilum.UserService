@@ -25,7 +25,26 @@ namespace Profilum.UserService.DAL.MongoDb.Repositories
 
             return entity;
         }
+        
+        public async Task<long> Count()
+        {
+            var entity = await _dbCollection.CountDocumentsAsync(t => true);
+            return entity;
+        }
 
+        public async IAsyncEnumerable<TEntity> GetAllStream()
+        {
+            var totalCount = await Count();
+            if (totalCount == 0)
+               yield break;
+            
+            for (var i = 0; i < totalCount; i++)
+            {
+                var entity =  await _dbCollection.Find(_ => true).Skip(i).Limit(1).FirstOrDefaultAsync();
+                yield return entity;
+            }
+        }
+        
         public async Task<IEnumerable<TEntity>> All()
         {
             var entity = await _dbCollection.FindSync(_ => true).ToListAsync();

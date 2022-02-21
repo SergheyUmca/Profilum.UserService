@@ -1,90 +1,64 @@
-﻿namespace Profilum.UserService.Common.BaseModels
+﻿// ReSharper disable ConstantNullCoalescingCondition
+namespace Profilum.UserService.Common.BaseModels
 {
-	// ReSharper disable once ClassNeverInstantiated.Global
-	public class AppResponse
-	{
-		public class Response
-		{
-			public bool IsCriticalCode =>
-				!(ResultCode == ResponseCodes.SUCCESS || ResultCode == ResponseCodes.NOT_FOUND_RECORDS);
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class AppResponse
+    {
+        public class Response
+        {
+            public bool IsCriticalCode =>
+                ResultCode is not (ResponseCodes.SUCCESS or ResponseCodes.NOT_FOUND_RECORDS);
 
-			public bool IsSuccess => ResultCode == ResponseCodes.SUCCESS;
-			
-			public string Code => ResultCode.ToString();
+            public bool IsSuccess => ResultCode == ResponseCodes.SUCCESS;
 
-			public ResponseCodes ResultCode { get; set; } = ResponseCodes.SUCCESS;
+            public ResponseCodes ResultCode { get; protected init; } = ResponseCodes.SUCCESS;
 
-			public List<CustomError> Errors { get; set; }
+            protected List<CustomError> Errors { get; set; }
 
-			public string LastResultMessage => Errors?.LastOrDefault()?.ResultMessage;
-		}
-
-		public class Response<T> : Response
-		{
-			public Response()
-			{}
-			
-	        public Response(T data) => Data = data;
-
-	        public T Data { get; set; }
+            // ReSharper disable once ConstantConditionalAccessQualifier
+            public string? LastResultMessage => Errors?.LastOrDefault()?.ResultMessage;
         }
 
-		public class ErrorResponse : Response
-		{
-			public ErrorResponse(string errorMessage, ResponseCodes responseCode = ResponseCodes.TECHNICAL_ERROR)
-			{
-				ResultCode = responseCode;
+        public class Response<T> : Response
+        {
+            protected Response()
+            {}
+			
+            public Response(T data) => Data = data;
 
-				Errors ??= new List<CustomError>();
+            public T Data { get; }
+        }
 
-				Errors.Add(new CustomError
-				{
-					ResponseCode = responseCode,
-					ResultMessage = errorMessage
-				});
-			}
+        public class ErrorResponse : Response
+        {
+            public ErrorResponse(string? errorMessage, ResponseCodes responseCode = ResponseCodes.TECHNICAL_ERROR)
+            {
+                ResultCode = responseCode;
 
-			public ErrorResponse(CustomError error)
-			{
-				ResultCode = error.ResponseCode;
+                Errors ??= new List<CustomError>();
 				
-				Errors ??= new List<CustomError>();
-				Errors.Add(error);
-			}
+                Errors.Add(new CustomError
+                {
+                    ResponseCode = responseCode,
+                    ResultMessage = errorMessage
+                });
+            }
+        }
 
-			public ErrorResponse(IEnumerable<CustomError> errors)
-			{
-				ResultCode = ResponseCodes.FAILURE;
+        public class ErrorResponse<T> : Response<T>
+        {
+            public ErrorResponse(string? errorMessage, ResponseCodes responseCode = ResponseCodes.TECHNICAL_ERROR)
+            {
+                ResultCode = responseCode;
+
+                Errors ??= new List<CustomError>();
 				
-				Errors ??= new List<CustomError>();
-				Errors.AddRange(errors);
-			}
-		}
-
-		public class ErrorResponse<T> : Response<T>
-		{
-			public ErrorResponse(string errorMessage, ResponseCodes responseCode = ResponseCodes.TECHNICAL_ERROR)
-			{
-				ResultCode = responseCode;
-				
-				Errors ??= new List<CustomError>();
-
-				Errors.Add(new CustomError
-				{
-					ResponseCode = responseCode,
-					ResultMessage = errorMessage
-				});
-			}
-
-			public ErrorResponse(IEnumerable<CustomError> errors)
-			{
-				var customErrors = errors.ToList();
-				ResultCode = customErrors.LastOrDefault()?.ResponseCode ?? ResponseCodes.FAILURE;
-				
-				Errors ??= new List<CustomError>();
-
-				Errors.AddRange(customErrors);
-			}
-		}
-	}
+                Errors.Add(new CustomError
+                {
+                    ResponseCode = responseCode,
+                    ResultMessage = errorMessage
+                });
+            }
+        }
+    }
 }

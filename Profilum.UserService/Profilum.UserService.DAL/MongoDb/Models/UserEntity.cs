@@ -13,7 +13,7 @@ public class Users
     public ObjectId _id { get; set; }
     
     [DataMember]
-    public long Id { get; set; }
+    public Guid Id { get; set; }
  
     [DataMember]
     public string Name { get; set; }

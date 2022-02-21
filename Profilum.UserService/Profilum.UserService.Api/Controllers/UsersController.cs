@@ -10,7 +10,7 @@ namespace Profilum.UserService.Api.Controllers;
 public class UsersController : ControllerBase
 {
     [HttpGet]
-    public async Task<Response<UserResponse>> Get([FromServices]IUserHandler userHandler , long id)
+    public async Task<Response<UserResponse>> Get([FromServices]IUserHandler userHandler , Guid id)
     {
         var getUser = await userHandler.Get(id);
         return !getUser.IsSuccess
@@ -46,7 +46,7 @@ public class UsersController : ControllerBase
     }
     
     [HttpDelete]
-    public async Task<Response> Delete([FromServices]IUserHandler userHandler, long id)
+    public async Task<Response> Delete([FromServices]IUserHandler userHandler, Guid id)
     {
         var deleteUser = await userHandler.Delete(id);
         return !deleteUser.IsSuccess

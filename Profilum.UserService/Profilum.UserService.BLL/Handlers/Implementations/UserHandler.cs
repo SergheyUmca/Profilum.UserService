@@ -9,6 +9,7 @@ namespace Profilum.UserService.BLL.Handlers.Implementations;
 public class UserHandler : IUserHandler
 {
     private readonly MongoUserRepository _mongoUserRepository;
+    private readonly int _pageSize = 10;
     
     public UserHandler(string connectionString, string dbName)
     {
@@ -35,7 +36,13 @@ public class UserHandler : IUserHandler
         }
     }
     
-    public async Task<Response<UserResponse>> Get(long id)
+    public async IAsyncEnumerable<UserResponse> GetAllStream()
+    {
+        await foreach (var userResponse in _mongoUserRepository.GetAllAsyncEnumerable()) 
+            yield return new UserResponse(userResponse);
+    }
+    
+    public async Task<Response<UserResponse>> Get(Guid id)
     {
         try
         {
@@ -97,7 +104,7 @@ public class UserHandler : IUserHandler
         }
     }
     
-    public async Task<Response> Delete(long id)
+    public async Task<Response> Delete(Guid id)
     {
         try
         {

@@ -1,15 +1,15 @@
 ﻿using Autofac;
-using Profilum.UserService.Api.Models;
+using Profilum.UserService.Common.BaseModels;
 
 namespace Profilum.UserService.Api.AutoFacModules
 {
     public abstract class ConfiguredModule : Module, IConfiguredModule
     {
-        protected ConfiguredModule(Settings settings)
+        protected ConfiguredModule(AppSettings settings)
         {
             Settings = settings;
         }
 
-        public Settings Settings { get; set; }
+        public AppSettings Settings { get; set; }
     }
 }

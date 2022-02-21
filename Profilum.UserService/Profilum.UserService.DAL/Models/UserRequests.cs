@@ -4,7 +4,7 @@ namespace Profilum.UserService.DAL.Models;
 
 public class UserRequest
 {
-    public long Id { get; set; }
+    public Guid Id { get; set; }
    
     public string Name { get; set; }
 

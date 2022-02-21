@@ -4,6 +4,6 @@
     {
         public ResponseCodes ResponseCode { get; set; }
 
-        public string ResultMessage { get; set; }
+        public string? ResultMessage { get; set; }
     }
 }

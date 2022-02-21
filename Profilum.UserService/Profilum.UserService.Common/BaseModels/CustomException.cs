@@ -8,9 +8,9 @@
 		
 		public ResponseCodes LastResultCode => LastError?.ResponseCode ?? ResponseCodes.TECHNICAL_ERROR;
 
-		public string LastErrorMessage => LastError?.ResultMessage;
+		public string? LastErrorMessage => LastError?.ResultMessage;
 
-		public CustomException(ResponseCodes responseCode, string errorMessage)
+		public CustomException(ResponseCodes responseCode, string? errorMessage)
 		{
 			Errors ??= new List<CustomError>();
 

@@ -1,11 +1,10 @@
-using System.ComponentModel.DataAnnotations;
 using Profilum.UserService.DAL.MongoDb.Models;
 
 namespace Profilum.UserService.DAL.Models;
 
 public class UserResponse
 {
-   public long Id { get; set; }
+   public Guid Id { get; set; }
    
    public string Name { get; set; }
 

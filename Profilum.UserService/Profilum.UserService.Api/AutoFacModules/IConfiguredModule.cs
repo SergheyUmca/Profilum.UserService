@@ -1,9 +1,9 @@
-﻿using Profilum.UserService.Api.Models;
+﻿using Profilum.UserService.Common.BaseModels;
 
 namespace Profilum.UserService.Api.AutoFacModules
 {
     public interface IConfiguredModule
     {
-        Settings Settings { get; set; }
+        AppSettings Settings { get; set; }
     }
 }
